@@ -9,7 +9,7 @@ interface Params{
 export const GET = async(_req:Request,{params}:Params)=>{
     try{
         await dbcon()
-        const {id}= params;
+        const id= params.id;
         const task = await Task.findById(id);
 
         if(!task)
