@@ -10,7 +10,6 @@ export const PUT = async (req: Request, context: { params: Promise<{ id: string 
   try {
     await dbcon();
 
-    // unwrap the params
     const { id } = await context.params;
 
     const body = await req.json();
