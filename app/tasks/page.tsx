@@ -1,33 +1,29 @@
-"use client";
 
-import React, { useEffect, useState } from "react";
-import TaskTable, { Task } from "./components/TaskTable";
+import TaskTable from "./components/TaskTable";
+import type { Task } from "./actions";
 import LoadingPage from "./components/LoadingPage";
+import dbcon from "@/app/lib/db";
+import TaskModel from "@/app/models/tasks";
 
-const Page = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
+export const revalidate = 0; 
 
-  // Function to fetch all tasks
-  const fetchTasks = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/showalltasks");
-      const data = await res.json();
-      setTasks(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+const Page = async () => {
+  let tasks: Task[] = [];
 
-  // Fetch tasks on mount
-  useEffect(() => {
-    fetchTasks();
-  }, []);
-
-  if (loading) return <LoadingPage />;
+  try {
+    await dbcon();
+    const data = await TaskModel.find().sort({ createdAt: -1 }).lean();
+    tasks = data.map((t: any) => ({
+      _id: t._id.toString(),
+      title: t.title,
+      description: t.description,
+      status: t.status,
+      createdAt: t.createdAt.toISOString(),
+      updatedAt: t.updatedAt.toISOString(),
+    }));
+  } catch (err) {
+    console.error("Error fetching tasks:", err);
+  }
 
   return (
     <div className="bg-black min-h-screen p-6 text-white">
@@ -35,7 +31,7 @@ const Page = () => {
         All Tasks
       </h1>
 
-      <TaskTable initialTasks={tasks} refreshTasks={fetchTasks} />
+      <TaskTable initialTasks={tasks} />
     </div>
   );
 };

@@ -1,13 +1,12 @@
 "use client";
 
 import React from "react";
-import { Task } from "./TaskTable";
+import { Task } from "../actions";
 
 interface Props {
   task: Task;
   onDelete: (id: string) => void;
   onEdit: () => void;
-  onUpdate: (task: Task) => void; // <-- Task, not string
   onRowClick?: (task: Task) => void;
 }
 

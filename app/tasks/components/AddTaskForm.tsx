@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Task } from "./TaskTable"; // Import Task type
+import { Task } from "../actions"; 
 
 interface Props {
   onAdd: (task: Task) => void;
@@ -14,15 +14,29 @@ const AddTaskForm: React.FC<Props> = ({ onAdd, onCancel }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch("/api/addtasks", {
-      method: "POST",
-      body: JSON.stringify({ title, description }),
-      headers: { "Content-Type": "application/json" },
-    });
-    const newTask = await res.json();
-    onAdd(newTask);
-    setTitle("");
-    setDescription("");
+
+    if (!title.trim()) {
+      alert("Title is required");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/addtasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, description }),
+      });
+
+      const data = await res.json();
+      const newTask: Task = data.task;
+
+      onAdd(newTask);
+      setTitle("");
+      setDescription("");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add task");
+    }
   };
 
   return (

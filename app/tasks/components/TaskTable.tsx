@@ -5,60 +5,71 @@ import AddTaskForm from "./AddTaskForm";
 import TaskRow from "./TaskRow";
 import EditTaskModal from "./EditTaskModal";
 import { useRouter } from "next/navigation";
-
-export interface Task {
-  _id: string;
-  title: string;
-  description?: string;
-  status: "pending" | "in-progress" | "completed";
-  createdAt: string;
-  updatedAt: string;
-}
+import {
+  addTaskAction,
+  updateTaskAction,
+  deleteTaskAction,
+  getTasks,
+  Task as TaskType,
+} from "../actions";
 
 interface Props {
-  initialTasks: Task[];
-  refreshTasks: () => void;
+  initialTasks: TaskType[];
 }
 
-const TaskTable: React.FC<Props> = ({ initialTasks, refreshTasks }) => {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
+const TaskTable: React.FC<Props> = ({ initialTasks }) => {
+  const [tasks, setTasks] = useState<TaskType[]>(initialTasks);
+  const [editingTask, setEditingTask] = useState<TaskType | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const router = useRouter();
 
-  const handleAdd = async (newTask: Task) => {
+const handleAdd = async (newTaskData: { title: string; description?: string }) => {
+  if (!newTaskData.title?.trim()) {
+    alert("Title is required");
+    return;
+  }
+
+  try {
+    const newTask = await addTaskAction(newTaskData.title, newTaskData.description);
     setTasks([newTask, ...tasks]);
     setShowAddForm(false);
-    await refreshTasks();
-  };
+  } catch (err) {
+    console.error("Failed to add task:", err);
+    alert("Failed to add task. Check console for details.");
+  }
+};
+
+
 
   const handleDelete = async (id: string) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this task?");
     if (!confirmDelete) return;
 
-    try {
-      const res = await fetch(`/api/deletetask/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        await refreshTasks();
-      }
-    } catch (err) {
-      console.error("Error deleting task:", err);
-    }
+    await deleteTaskAction(id);
+    setTasks(tasks.filter(task => task._id !== id));
+
   };
 
-  const handleUpdate = async (updatedTask: Task) => {
-    await refreshTasks();
+  // Update Task
+  const handleUpdate = async (updatedTask: TaskType) => {
+    await updateTaskAction(updatedTask._id, {
+      title: updatedTask.title,
+      description: updatedTask.description,
+      status: updatedTask.status,
+    });
+    setTasks(tasks.map(task => task._id === updatedTask._id ? updatedTask : task));
+    setEditingTask(null);
   };
 
-  const handleRowClick = (task: Task) => {
+  // Navigate to task details
+  const handleRowClick = (task: TaskType) => {
     const slug = task.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, ""); // simple slugify
+      .replace(/(^-|-$)/g, "");
 
     router.push(`/tasks/${task._id}/${slug}`);
   };
-
 
   return (
     <div>
@@ -92,10 +103,6 @@ const TaskTable: React.FC<Props> = ({ initialTasks, refreshTasks }) => {
               key={task._id || index}
               task={task}
               onDelete={handleDelete}
-              onUpdate={(t) => {
-                handleUpdate(t);
-                setEditingTask(null);
-              }}
               onRowClick={handleRowClick}
               onEdit={() => setEditingTask(task)}
             />

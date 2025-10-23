@@ -13,7 +13,7 @@ export const POST = async (req:Request) =>{
         {
             return NextResponse.json(
                 {message:"Title is required and must be string"},
-                {status:404}
+                {status:400}
             )
         }
 

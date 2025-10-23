@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Task } from "./TaskTable";
+import { Task } from "../actions";
 
 interface Props {
   task: Task;
