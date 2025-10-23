@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import dbcon from "@/app/lib/db";
-import Task from "@/app/models/tasks";
+import dbcon from "@/lib/db";
+import Task from "@/models/tasks";
 
 interface Params {
   params: { id: string };

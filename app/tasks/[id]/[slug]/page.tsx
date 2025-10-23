@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import axiosInstance from "@/app/lib/axiosInstance";
+import axiosInstance from "@/lib/axiosInstance";
 import React from "react";
 
 interface Task {

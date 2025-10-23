@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Task } from "../actions";
+import { Task } from "../app/tasks/actions";
 
 interface Props {
   task: Task;

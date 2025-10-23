@@ -4,14 +4,14 @@ import React, { useState } from "react";
 import AddTaskForm from "./AddTaskForm";
 import TaskRow from "./TaskRow";
 import EditTaskModal from "./EditTaskModal";
-import LoadingPage from "./LoadingPage"; // your loading spinner component
+import LoadingPage from "./LoadingPage"; 
 import { useRouter } from "next/navigation";
 import {
   addTaskAction,
   updateTaskAction,
   deleteTaskAction,
   Task as TaskType,
-} from "../actions";
+} from "../app/tasks/actions";
 
 interface Props {
   initialTasks: TaskType[];

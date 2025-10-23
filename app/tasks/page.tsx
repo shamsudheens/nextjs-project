@@ -1,8 +1,8 @@
 // app/tasks/page.tsx (Server Component)
-import TaskTable from "./components/TaskTable";
-import LoadingPage from "./components/LoadingPage";
-import dbcon from "@/app/lib/db";
-import TaskModel from "@/app/models/tasks";
+import TaskTable from "../../components/TaskTable";
+import LoadingPage from "../../components/LoadingPage";
+import dbcon from "@/lib/db";
+import TaskModel from "@/models/tasks";
 import type { Task } from "./actions";
 import React from "react";
 

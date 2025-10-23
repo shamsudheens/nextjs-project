@@ -1,6 +1,6 @@
-import Task from "@/app/models/tasks";
+import Task from "@/models/tasks";
 import { NextResponse } from "next/server";
-import dbcon from "@/app/lib/db";
+import dbcon from "@/lib/db";
 
 export const POST = async (req:Request) =>{
     try{

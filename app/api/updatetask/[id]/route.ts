@@ -1,5 +1,5 @@
-import Task from "@/app/models/tasks";
-import dbcon from "@/app/lib/db";
+import Task from "@/models/tasks";
+import dbcon from "@/lib/db";
 import { NextResponse } from "next/server";
 
 interface Params {
