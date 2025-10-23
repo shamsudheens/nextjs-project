@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import AddTaskForm from "./AddTaskForm";
 import TaskRow from "./TaskRow";
 import EditTaskModal from "./EditTaskModal";
+import { useRouter } from "next/navigation";
 
 export interface Task {
   _id: string;
@@ -16,13 +17,14 @@ export interface Task {
 
 interface Props {
   initialTasks: Task[];
-  refreshTasks: () => void; 
+  refreshTasks: () => void;
 }
 
 const TaskTable: React.FC<Props> = ({ initialTasks, refreshTasks }) => {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const router = useRouter();
 
   const handleAdd = async (newTask: Task) => {
     setTasks([newTask, ...tasks]);
@@ -47,6 +49,16 @@ const TaskTable: React.FC<Props> = ({ initialTasks, refreshTasks }) => {
   const handleUpdate = async (updatedTask: Task) => {
     await refreshTasks();
   };
+
+  const handleRowClick = (task: Task) => {
+    const slug = task.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, ""); // simple slugify
+
+    router.push(`/tasks/${task._id}/${slug}`);
+  };
+
 
   return (
     <div>
@@ -84,6 +96,7 @@ const TaskTable: React.FC<Props> = ({ initialTasks, refreshTasks }) => {
                 handleUpdate(t);
                 setEditingTask(null);
               }}
+              onRowClick={handleRowClick}
               onEdit={() => setEditingTask(task)}
             />
           ))}
