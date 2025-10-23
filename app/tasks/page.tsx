@@ -1,29 +1,25 @@
-
+// app/tasks/page.tsx (Server Component)
 import TaskTable from "./components/TaskTable";
-import type { Task } from "./actions";
 import LoadingPage from "./components/LoadingPage";
 import dbcon from "@/app/lib/db";
 import TaskModel from "@/app/models/tasks";
+import type { Task } from "./actions";
+import React from "react";
 
-export const revalidate = 0; 
+
+export const revalidate = 0;
 
 const Page = async () => {
-  let tasks: Task[] = [];
-
-  try {
-    await dbcon();
-    const data = await TaskModel.find().sort({ createdAt: -1 }).lean();
-    tasks = data.map((t: any) => ({
-      _id: t._id.toString(),
-      title: t.title,
-      description: t.description,
-      status: t.status,
-      createdAt: t.createdAt.toISOString(),
-      updatedAt: t.updatedAt.toISOString(),
-    }));
-  } catch (err) {
-    console.error("Error fetching tasks:", err);
-  }
+  await dbcon();
+  const data = await TaskModel.find().sort({ createdAt: -1 }).lean();
+  const tasks: Task[] = data.map((t: any) => ({
+    _id: t._id.toString(),
+    title: t.title,
+    description: t.description,
+    status: t.status,
+    createdAt: t.createdAt.toISOString(),
+    updatedAt: t.updatedAt.toISOString(),
+  }));
 
   return (
     <div className="bg-black min-h-screen p-6 text-white">
@@ -31,7 +27,10 @@ const Page = async () => {
         All Tasks
       </h1>
 
-      <TaskTable initialTasks={tasks} />
+      {/* Suspense shows loader until client component hydrates */}
+      <React.Suspense fallback={<LoadingPage />}>
+        <TaskTable initialTasks={tasks} />
+      </React.Suspense>
     </div>
   );
 };

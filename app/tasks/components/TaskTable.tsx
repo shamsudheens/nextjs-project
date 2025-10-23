@@ -4,12 +4,12 @@ import React, { useState } from "react";
 import AddTaskForm from "./AddTaskForm";
 import TaskRow from "./TaskRow";
 import EditTaskModal from "./EditTaskModal";
+import LoadingPage from "./LoadingPage"; // your loading spinner component
 import { useRouter } from "next/navigation";
 import {
   addTaskAction,
   updateTaskAction,
   deleteTaskAction,
-  getTasks,
   Task as TaskType,
 } from "../actions";
 
@@ -21,44 +21,66 @@ const TaskTable: React.FC<Props> = ({ initialTasks }) => {
   const [tasks, setTasks] = useState<TaskType[]>(initialTasks);
   const [editingTask, setEditingTask] = useState<TaskType | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-const handleAdd = async (newTaskData: { title: string; description?: string }) => {
-  if (!newTaskData.title?.trim()) {
-    alert("Title is required");
-    return;
-  }
+  // Add Task
+  const handleAdd = async (newTaskData: { title: string; description?: string }) => {
+    if (!newTaskData.title?.trim()) {
+      alert("Title is required");
+      return;
+    }
 
-  try {
-    const newTask = await addTaskAction(newTaskData.title, newTaskData.description);
-    setTasks([newTask, ...tasks]);
-    setShowAddForm(false);
-  } catch (err) {
-    console.error("Failed to add task:", err);
-    alert("Failed to add task. Check console for details.");
-  }
-};
+    try {
+      setLoading(true);
+      const newTask = await addTaskAction(newTaskData.title, newTaskData.description);
+      setTasks([newTask, ...tasks]);
+      setShowAddForm(false);
+    } catch (err) {
+      console.error("Failed to add task:", err);
+      alert("Failed to add task. Check console for details.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-
-
+  // Delete Task
   const handleDelete = async (id: string) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this task?");
     if (!confirmDelete) return;
 
-    await deleteTaskAction(id);
-    setTasks(tasks.filter(task => task._id !== id));
-
+    try {
+      setLoading(true);
+      await deleteTaskAction(id);
+      setTasks(tasks.filter(task => task._id !== id));
+    } catch (err) {
+      console.error("Failed to delete task:", err);
+      alert("Failed to delete task. Check console for details.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Update Task
   const handleUpdate = async (updatedTask: TaskType) => {
-    await updateTaskAction(updatedTask._id, {
-      title: updatedTask.title,
-      description: updatedTask.description,
-      status: updatedTask.status,
-    });
-    setTasks(tasks.map(task => task._id === updatedTask._id ? updatedTask : task));
-    setEditingTask(null);
+    try {
+      setLoading(true);
+      const updated = await updateTaskAction(updatedTask._id, {
+        title: updatedTask.title,
+        description: updatedTask.description,
+        status: updatedTask.status,
+      });
+
+      if (updated) {
+        setTasks(tasks.map(task => (task._id === updated._id ? updated : task)));
+        setEditingTask(null);
+      }
+    } catch (err) {
+      console.error("Failed to update task:", err);
+      alert("Failed to update task. Check console for details.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Navigate to task details
@@ -67,9 +89,10 @@ const handleAdd = async (newTaskData: { title: string; description?: string }) =
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
-
     router.push(`/tasks/${task._id}/${slug}`);
   };
+
+  if (loading) return <LoadingPage />; // show loader when loading
 
   return (
     <div>
@@ -82,9 +105,7 @@ const handleAdd = async (newTaskData: { title: string; description?: string }) =
         </button>
       )}
 
-      {showAddForm && (
-        <AddTaskForm onAdd={handleAdd} onCancel={() => setShowAddForm(false)} />
-      )}
+      {showAddForm && <AddTaskForm onAdd={handleAdd} onCancel={() => setShowAddForm(false)} />}
 
       <table className="w-full table-auto border-collapse border border-yellow-400 mt-4 text-center">
         <thead>
