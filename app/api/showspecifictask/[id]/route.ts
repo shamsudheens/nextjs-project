@@ -3,19 +3,20 @@ import dbcon from "@/app/lib/db";
 import Task from "@/app/models/tasks";
 
 interface Params{
-    params:{id:string}
+    params:{id:string,slug?: string}
 }
 
 export const GET = async(_req:Request,{params}:Params)=>{
     try{
         await dbcon()
-        const id= params.id;
+        const resolvedParams = await params;
+        const id = resolvedParams.id;
         const task = await Task.findById(id);
 
         if(!task)
         {
-            return NextResponse.json(
-                {message:"Task not found"},
+            return NextResponse.json(                                                                                        
+                {message:"Task not found"},                                                                                                                                                             
                 {status:404}
             )
         }   
