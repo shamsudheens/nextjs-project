@@ -11,11 +11,8 @@ interface Task {
   updatedAt: string;
 }
 
-const TaskDetailsPage = async ({
-  params,
-}: {
-  params: Promise<{ id?: string; slug?: string }>;
-}) => {
+const TaskDetailsPage = async ({params,}: {params: Promise<{ id?: string; slug?: string }>;}) => {
+  
   const { id, slug } = await params;
 
   if (!id) {
