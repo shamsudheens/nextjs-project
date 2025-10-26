@@ -27,7 +27,6 @@ const Page = async () => {
         All Tasks
       </h1>
 
-      {/* Suspense shows loader until client component hydrates */}
       <React.Suspense fallback={<LoadingPage />}>
         <TaskTable initialTasks={tasks} />
       </React.Suspense>

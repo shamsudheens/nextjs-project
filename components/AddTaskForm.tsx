@@ -19,6 +19,7 @@ const AddTaskForm: React.FC<Props> = ({ onAdd, onCancel }) => {
       alert("Title is required");
       return;
     }
+    
 
     try {
       const res = await fetch("/api/addtasks", {
@@ -29,7 +30,6 @@ const AddTaskForm: React.FC<Props> = ({ onAdd, onCancel }) => {
 
       const data = await res.json();
       const newTask: Task = data.task;
-
       onAdd(newTask);
       setTitle("");
       setDescription("");
